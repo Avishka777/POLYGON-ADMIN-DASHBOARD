@@ -74,10 +74,10 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
           <span>Internal Access Portal</span>
         </div>
 
-        {/* For Napuru QA Team USERS Main Banner Text */}
+        {/* For Napuru QA Team Main Banner Text */}
         <div className="space-y-1">
           <h1 className="text-3xl sm:text-4xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-rose-400 via-red-300 to-amber-300 uppercase drop-shadow-[0_2px_15px_rgba(244,63,94,0.6)]">
-            For Napuru QA Team USERS
+            For Napuru QA Team
           </h1>
           <p className="text-xs font-mono text-rose-300/80 tracking-widest uppercase">
             Database & Table Excel Exporter • QA Release

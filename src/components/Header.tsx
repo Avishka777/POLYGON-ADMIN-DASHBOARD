@@ -42,7 +42,7 @@ export const Header: React.FC<HeaderProps> = ({
               DataFlow Excel Exporter
             </h1>
             <span className="px-2 py-0.5 text-[10px] font-extrabold bg-gradient-to-r from-rose-950 to-red-950 text-rose-300 border border-rose-500/40 rounded-full shadow-[0_0_8px_rgba(244,63,94,0.3)] tracking-wider">
-              For Napuru QA Team USERS
+              For Napuru QA Team
             </span>
           </div>
           <p className="text-[11px] text-slate-400 hidden sm:block">

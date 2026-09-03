@@ -433,7 +433,7 @@ export default function Home() {
               <DevilWomanIcon size={100} />
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-red-950/80 to-rose-950/80 border border-red-500/40 text-red-300 text-xs font-bold tracking-wider shadow-[0_0_15px_rgba(244,63,94,0.3)]">
                 <Flame className="w-3.5 h-3.5 text-rose-500 animate-pulse" />
-                <span>For Napuru QA Team USERS</span>
+                <span>For Napuru QA Team</span>
               </div>
             </div>
 
