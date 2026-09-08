@@ -19,11 +19,28 @@ export interface TableInfo {
   sizeFormatted?: string;
 }
 
+export interface ForeignKeyInfo {
+  constraintName: string;
+  columnName: string;
+  foreignTable: string;
+  foreignColumn: string;
+}
+
+export interface TableRelationship {
+  constraintName: string;
+  sourceTable: string;
+  sourceColumn: string;
+  targetTable: string;
+  targetColumn: string;
+}
+
 export interface ColumnInfo {
   name: string;
   type: string;
   nullable: boolean;
   isPrimaryKey?: boolean;
+  isForeignKey?: boolean;
+  foreignKeyInfo?: ForeignKeyInfo;
   defaultValue?: string | null;
 }
 
@@ -34,6 +51,7 @@ export interface TablePreviewData {
   totalRows: number;
   page: number;
   pageSize: number;
+  relationships?: TableRelationship[];
 }
 
 export interface TableExportPayload {

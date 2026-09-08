@@ -1,5 +1,5 @@
 import mysql, { ConnectionOptions } from 'mysql2/promise';
-import { ColumnInfo, DbConnectionConfig, TableInfo, TablePreviewData } from '../types';
+import { ColumnInfo, DbConnectionConfig, TableInfo, TablePreviewData, TableRelationship } from '../types';
 
 function createMysqlConfig(config: DbConnectionConfig, databaseOverride?: string): ConnectionOptions {
   if (config.connectionString && config.connectionString.trim() !== '') {
@@ -87,6 +87,46 @@ export async function listMysqlTables(
   });
 }
 
+export async function getMysqlForeignKeys(
+  config: DbConnectionConfig,
+  database?: string,
+  tableName?: string
+): Promise<TableRelationship[]> {
+  const targetDb = database || config.database;
+  if (!targetDb) return [];
+
+  return withMysqlConnection(config, targetDb, async (conn) => {
+    let query = `
+      SELECT 
+        CONSTRAINT_NAME as constraintName,
+        TABLE_NAME as sourceTable,
+        COLUMN_NAME as sourceColumn,
+        REFERENCED_TABLE_NAME as targetTable,
+        REFERENCED_COLUMN_NAME as targetColumn
+      FROM information_schema.KEY_COLUMN_USAGE
+      WHERE TABLE_SCHEMA = ? 
+        AND REFERENCED_TABLE_NAME IS NOT NULL
+    `;
+    const params: any[] = [targetDb];
+
+    if (tableName) {
+      query += ` AND (TABLE_NAME = ? OR REFERENCED_TABLE_NAME = ?)`;
+      params.push(tableName, tableName);
+    }
+
+    query += ` ORDER BY TABLE_NAME, CONSTRAINT_NAME;`;
+
+    const [rows]: any = await conn.query(query, params);
+    return (rows || []).map((r: any) => ({
+      constraintName: r.constraintName,
+      sourceTable: r.sourceTable,
+      sourceColumn: r.sourceColumn,
+      targetTable: r.targetTable,
+      targetColumn: r.targetColumn,
+    }));
+  });
+}
+
 export async function getMysqlColumns(
   config: DbConnectionConfig,
   tableName: string,
@@ -98,7 +138,7 @@ export async function getMysqlColumns(
   }
 
   return withMysqlConnection(config, targetDb, async (conn) => {
-    const query = `
+    const colQuery = `
       SELECT 
         COLUMN_NAME as name,
         DATA_TYPE as type,
@@ -110,14 +150,44 @@ export async function getMysqlColumns(
       ORDER BY ORDINAL_POSITION ASC;
     `;
 
-    const [rows]: any = await conn.query(query, [targetDb, tableName]);
-    return rows.map((r: any) => ({
-      name: r.name,
-      type: r.type,
-      nullable: r.nullable === 'YES',
-      isPrimaryKey: r.columnKey === 'PRI',
-      defaultValue: r.defaultValue,
-    }));
+    const [colRows]: any = await conn.query(colQuery, [targetDb, tableName]);
+
+    // Fetch FK constraints for this table
+    const fkQuery = `
+      SELECT 
+        CONSTRAINT_NAME as constraintName,
+        COLUMN_NAME as columnName,
+        REFERENCED_TABLE_NAME as foreignTable,
+        REFERENCED_COLUMN_NAME as foreignColumn
+      FROM information_schema.KEY_COLUMN_USAGE
+      WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND REFERENCED_TABLE_NAME IS NOT NULL;
+    `;
+    const [fkRows]: any = await conn.query(fkQuery, [targetDb, tableName]);
+
+    const fkMap = new Map<string, any>();
+    if (Array.isArray(fkRows)) {
+      fkRows.forEach((r: any) => {
+        fkMap.set(r.columnName, {
+          constraintName: r.constraintName,
+          columnName: r.columnName,
+          foreignTable: r.foreignTable,
+          foreignColumn: r.foreignColumn,
+        });
+      });
+    }
+
+    return colRows.map((r: any) => {
+      const fk = fkMap.get(r.name);
+      return {
+        name: r.name,
+        type: r.type,
+        nullable: r.nullable === 'YES',
+        isPrimaryKey: r.columnKey === 'PRI',
+        isForeignKey: Boolean(fk),
+        foreignKeyInfo: fk,
+        defaultValue: r.defaultValue,
+      };
+    });
   });
 }
 
@@ -137,6 +207,7 @@ export async function getMysqlTablePreview(
 
   return withMysqlConnection(config, targetDb, async (conn) => {
     const columns = await getMysqlColumns(config, tableName, targetDb);
+    const relationships = await getMysqlForeignKeys(config, targetDb, tableName);
 
     const safeDb = targetDb.replace(/`/g, '``');
     const safeTable = tableName.replace(/`/g, '``');
@@ -157,6 +228,7 @@ export async function getMysqlTablePreview(
       totalRows,
       page,
       pageSize,
+      relationships,
     };
   });
 }

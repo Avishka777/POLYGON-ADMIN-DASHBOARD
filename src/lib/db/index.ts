@@ -7,12 +7,13 @@ import {
 } from './adapters/postgres';
 import {
   getAllMysqlTableData,
+  getMysqlForeignKeys,
   getMysqlTablePreview,
   listMysqlDatabases,
   listMysqlTables,
   testMysqlConnection,
 } from './adapters/mysql';
-import { DbConnectionConfig, TableInfo, TablePreviewData } from './types';
+import { DbConnectionConfig, TableInfo, TablePreviewData, TableRelationship } from './types';
 
 export async function testConnection(config: DbConnectionConfig) {
   if (config.type === 'postgres') {
@@ -42,6 +43,17 @@ export async function listTables(
     return await listMysqlTables(config, database);
   }
   throw new Error(`Unsupported database type: ${config.type}`);
+}
+
+export async function getForeignKeys(
+  config: DbConnectionConfig,
+  database?: string,
+  tableName?: string
+): Promise<TableRelationship[]> {
+  if (config.type === 'mysql') {
+    return await getMysqlForeignKeys(config, database, tableName);
+  }
+  return [];
 }
 
 export async function getTablePreview(

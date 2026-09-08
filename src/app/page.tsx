@@ -1,33 +1,34 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import {
-  ArrowRight,
-  CheckCircle2,
-  Database,
-  FileSpreadsheet,
-  FileType,
-  Flame,
-  Layers,
-  PlugZap,
-  Server,
-  ShieldCheck,
-  Sparkles,
-  Table as TableIcon,
-} from 'lucide-react';
 import { ConnectionModal } from '@/components/ConnectionModal';
-import { DevilWomanIcon } from '@/components/DevilWomanIcon';
+import { DeveloperSplashScreen } from '@/components/DeveloperSplashScreen';
+import { ErDiagramModal } from '@/components/ErDiagramModal';
 import { Header } from '@/components/Header';
+import { OutPackagesView } from '@/components/OutPackagesView';
+import { RoleMenuDashboard } from '@/components/RoleMenuDashboard';
+import { RoleSelectScreen } from '@/components/RoleSelectScreen';
 import { Sidebar } from '@/components/Sidebar';
-import { SplashScreen } from '@/components/SplashScreen';
+import { SplashScreen as QaSplashScreen } from '@/components/SplashScreen';
 import { TablePreview } from '@/components/TablePreview';
 import { ToastContainer, ToastMessage } from '@/components/Toast';
-import { DbConnectionConfig, TableInfo, TablePreviewData } from '@/lib/db/types';
+import { DbConnectionConfig, TableInfo, TablePreviewData, TableRelationship } from '@/lib/db/types';
 
 const LAST_CONFIG_KEY = 'dataflow_last_connection_config';
+const ROLE_STORAGE_KEY = 'app_manager_user_role';
+const THEME_STORAGE_KEY = 'app_manager_theme';
 
 export default function Home() {
-  const [showSplash, setShowSplash] = useState(true);
+  // Theme state
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+
+  // Role state: 'qa' | 'developer' | null
+  const [userRole, setUserRole] = useState<'qa' | 'developer' | null>(null);
+
+  // View state: 'role-select' | 'splash' | 'menu' | 'db-exporter' | 'out-packages'
+  const [activeView, setActiveView] = useState<'role-select' | 'splash' | 'menu' | 'db-exporter' | 'out-packages'>('role-select');
+
+  // DB Connection & Exporter state
   const [config, setConfig] = useState<DbConnectionConfig | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [isConnectionModalOpen, setIsConnectionModalOpen] = useState(false);
@@ -52,8 +53,96 @@ export default function Home() {
   const [isLoadingTables, setIsLoadingTables] = useState(false);
   const [isLoadingPreview, setIsLoadingPreview] = useState(false);
 
+  // ER Diagram & Relationship state
+  const [isErDiagramOpen, setIsErDiagramOpen] = useState(false);
+  const [relationships, setRelationships] = useState<TableRelationship[]>([]);
+
   // Toast alerts
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
+
+  const isLightTheme = theme === 'light';
+
+  const loadRelationships = async (dbConfig: DbConnectionConfig, targetDb?: string) => {
+    try {
+      const res = await fetch('/api/db/relationships', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          config: dbConfig,
+          database: targetDb || selectedDatabase || dbConfig.database,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.relationships) {
+        setRelationships(data.relationships);
+      }
+    } catch {
+      // Ignore
+    }
+  };
+
+  const handleOpenErDiagram = async () => {
+    if (config) {
+      await loadRelationships(config, selectedDatabase);
+    }
+    setIsErDiagramOpen(true);
+  };
+
+  // Load saved theme, role & connection on mount
+  useEffect(() => {
+    try {
+      const savedTheme = localStorage.getItem(THEME_STORAGE_KEY) as 'light' | 'dark' | null;
+      if (savedTheme) {
+        setTheme(savedTheme);
+      }
+
+      const savedRole = localStorage.getItem(ROLE_STORAGE_KEY) as 'qa' | 'developer' | null;
+      if (savedRole) {
+        setUserRole(savedRole);
+        setActiveView('menu');
+      }
+
+      const savedConfig = localStorage.getItem(LAST_CONFIG_KEY);
+      if (savedConfig) {
+        const parsed: DbConnectionConfig = JSON.parse(savedConfig);
+        setConfig(parsed);
+      }
+    } catch {
+      // Ignore error
+    }
+  }, []);
+
+  // Update theme in html element class
+  useEffect(() => {
+    if (theme === 'light') {
+      document.documentElement.classList.remove('dark');
+    } else {
+      document.documentElement.classList.add('dark');
+    }
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, theme);
+    } catch {
+      // Ignore
+    }
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
+  };
+
+  const handleSelectRole = (role: 'qa' | 'developer') => {
+    setUserRole(role);
+    try {
+      localStorage.setItem(ROLE_STORAGE_KEY, role);
+    } catch {
+      // Ignore
+    }
+    setActiveView('splash');
+  };
+
+  const handleSwitchRole = () => {
+    setActiveView('role-select');
+  };
 
   const addToast = (type: 'success' | 'error' | 'info', title: string, message?: string) => {
     const id = Date.now().toString() + Math.random().toString();
@@ -67,20 +156,7 @@ export default function Home() {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
-  // Attempt auto-reconnect or load previous connection on mount
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem(LAST_CONFIG_KEY);
-      if (saved) {
-        const parsed: DbConnectionConfig = JSON.parse(saved);
-        setConfig(parsed);
-      }
-    } catch {
-      // Ignore
-    }
-  }, []);
-
-  // Fetch tables when selectedDatabase or connection config changes
+  // Load tables for database
   const loadTables = async (dbConfig: DbConnectionConfig, targetDb?: string) => {
     setIsLoadingTables(true);
     try {
@@ -99,7 +175,6 @@ export default function Home() {
 
       setTables(data.tables || []);
 
-      // If tables exist, preview the first one
       if (data.tables && data.tables.length > 0) {
         const first = data.tables[0];
         setSelectedTable(first.name);
@@ -116,7 +191,7 @@ export default function Home() {
     }
   };
 
-  // Load preview data
+  // Load table preview
   const loadTablePreview = async (
     dbConfig: DbConnectionConfig,
     tableName: string,
@@ -152,10 +227,9 @@ export default function Home() {
     }
   };
 
-  // Handle Connect from modal
+  // Connect database
   const handleConnect = async (newConfig: DbConnectionConfig) => {
     try {
-      // 1. Fetch available databases
       const dbRes = await fetch('/api/db/databases', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -186,7 +260,6 @@ export default function Home() {
 
       addToast('success', 'Connected Successfully', `Connected to ${newConfig.type.toUpperCase()}`);
 
-      // 2. Load tables for active database
       await loadTables(newConfig, activeDb);
     } catch (err: any) {
       setIsConnected(false);
@@ -194,7 +267,6 @@ export default function Home() {
     }
   };
 
-  // Handle database change dropdown
   const handleSelectDatabase = async (dbName: string) => {
     if (!config) return;
     setSelectedDatabase(dbName);
@@ -202,7 +274,6 @@ export default function Home() {
     await loadTables(config, dbName);
   };
 
-  // Handle table selection for preview
   const handleSelectTable = (tableName: string, schema?: string) => {
     if (!config) return;
     setSelectedTable(tableName);
@@ -211,33 +282,17 @@ export default function Home() {
     loadTablePreview(config, tableName, schema, 1, pageSize, selectedDatabase);
   };
 
-  // Handle pagination changes
   const handlePageChange = (newPage: number) => {
     if (!config || !selectedTable) return;
-    loadTablePreview(
-      config,
-      selectedTable,
-      selectedTableSchema,
-      newPage,
-      pageSize,
-      selectedDatabase
-    );
+    loadTablePreview(config, selectedTable, selectedTableSchema, newPage, pageSize, selectedDatabase);
   };
 
   const handlePageSizeChange = (newSize: number) => {
     if (!config || !selectedTable) return;
     setPageSize(newSize);
-    loadTablePreview(
-      config,
-      selectedTable,
-      selectedTableSchema,
-      1,
-      newSize,
-      selectedDatabase
-    );
+    loadTablePreview(config, selectedTable, selectedTableSchema, 1, newSize, selectedDatabase);
   };
 
-  // Multi-table selection for batch export
   const handleToggleExportSelection = (tableName: string) => {
     setSelectedForExport((prev) =>
       prev.includes(tableName) ? prev.filter((t) => t !== tableName) : [...prev, tableName]
@@ -252,7 +307,6 @@ export default function Home() {
     setSelectedForExport([]);
   };
 
-  // Download helper from response blob
   const triggerDownload = (blob: Blob, filename: string) => {
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -264,7 +318,6 @@ export default function Home() {
     window.URL.revokeObjectURL(url);
   };
 
-  // Export Single Table
   const handleExportSingle = async (
     tableName: string,
     schema?: string,
@@ -296,11 +349,7 @@ export default function Home() {
       const ext = format === 'xlsx' ? 'xlsx' : 'csv';
       triggerDownload(blob, `${tableName}_${Date.now()}.${ext}`);
 
-      addToast(
-        'success',
-        'Export Complete!',
-        `${tableName}.${ext} downloaded successfully.`
-      );
+      addToast('success', 'Export Complete!', `${tableName}.${ext} downloaded successfully.`);
     } catch (err: any) {
       addToast('error', 'Export Failed', err.message);
     } finally {
@@ -308,15 +357,10 @@ export default function Home() {
     }
   };
 
-  // Export Multiple Selected Tables to multi-sheet Excel
   const handleExportSelected = async () => {
     if (!config || selectedForExport.length === 0) return;
     setIsExporting(true);
-    addToast(
-      'info',
-      'Batch Exporting...',
-      `Packaging ${selectedForExport.length} tables into multi-sheet Excel`
-    );
+    addToast('info', 'Batch Exporting...', `Packaging ${selectedForExport.length} tables into multi-sheet Excel`);
 
     try {
       const res = await fetch('/api/db/export', {
@@ -336,10 +380,7 @@ export default function Home() {
       }
 
       const blob = await res.blob();
-      triggerDownload(
-        blob,
-        `Database_Export_${selectedForExport.length}_Tables_${Date.now()}.xlsx`
-      );
+      triggerDownload(blob, `Database_Export_${selectedForExport.length}_Tables_${Date.now()}.xlsx`);
 
       addToast(
         'success',
@@ -353,160 +394,154 @@ export default function Home() {
     }
   };
 
+  // RENDER VIEW LOGIC
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100 font-sans selection:bg-rose-500 selection:text-white">
-      {/* Splash Screen */}
-      {showSplash && (
-        <SplashScreen onFinish={() => setShowSplash(false)} />
+    <div
+      className={`min-h-screen flex flex-col font-sans transition-colors duration-300 ${
+        isLightTheme ? 'bg-slate-50 text-slate-900' : 'bg-slate-950 text-slate-100'
+      }`}
+    >
+      {/* 1. ROLE SELECTION SCREEN */}
+      {activeView === 'role-select' && (
+        <RoleSelectScreen
+          onSelectRole={handleSelectRole}
+          isLightTheme={isLightTheme}
+          onToggleTheme={toggleTheme}
+        />
       )}
 
-      {/* Header */}
-      <Header
-        config={config}
-        isConnected={isConnected}
-        onOpenConnectionModal={() => setIsConnectionModalOpen(true)}
+      {/* 2. SPLASH SCREEN TRANSITIONS */}
+      {activeView === 'splash' && userRole === 'qa' && (
+        <QaSplashScreen
+          onFinish={() => setActiveView('menu')}
+          isLightTheme={isLightTheme}
+        />
+      )}
+
+      {activeView === 'splash' && userRole === 'developer' && (
+        <DeveloperSplashScreen
+          onFinish={() => setActiveView('menu')}
+          isLightTheme={isLightTheme}
+        />
+      )}
+
+      {/* 3. MENU DASHBOARD */}
+      {activeView === 'menu' && userRole && (
+        <RoleMenuDashboard
+          userRole={userRole}
+          onSwitchRole={handleSwitchRole}
+          onOpenDbExporter={() => setActiveView('db-exporter')}
+          onOpenOutPackages={() => setActiveView('out-packages')}
+          isLightTheme={isLightTheme}
+          onToggleTheme={toggleTheme}
+          config={config}
+          isConnected={isConnected}
+          onOpenConnectionModal={() => setIsConnectionModalOpen(true)}
+        />
+      )}
+
+      {/* 4. OUT PACKAGES WORKSPACE */}
+      {activeView === 'out-packages' && userRole && (
+        <OutPackagesView
+          onBackToMenu={() => setActiveView('menu')}
+          isLightTheme={isLightTheme}
+          userRole={userRole}
+        />
+      )}
+
+      {/* 5. DB EXPORTER WORKSPACE */}
+      {activeView === 'db-exporter' && (
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <Header
+            config={config}
+            isConnected={isConnected}
+            onOpenConnectionModal={() => setIsConnectionModalOpen(true)}
+            selectedDatabase={selectedDatabase}
+            totalTablesCount={tables.length}
+            onShowSplash={() => setActiveView('splash')}
+            userRole={userRole}
+            onSwitchRole={handleSwitchRole}
+            isLightTheme={isLightTheme}
+            onToggleTheme={toggleTheme}
+            onGoToMenu={() => setActiveView('menu')}
+          />
+
+          <main className="flex-1 flex overflow-hidden">
+            <Sidebar
+              databases={databases}
+              selectedDatabase={selectedDatabase}
+              onSelectDatabase={handleSelectDatabase}
+              tables={tables}
+              selectedTable={selectedTable}
+              onSelectTable={handleSelectTable}
+              selectedTableSchema={selectedTableSchema}
+              selectedForExport={selectedForExport}
+              onToggleExportSelection={handleToggleExportSelection}
+              onSelectAllForExport={handleSelectAllForExport}
+              onClearExportSelection={handleClearExportSelection}
+              onExportSelected={handleExportSelected}
+              onQuickExportSingle={(t, s) => handleExportSingle(t, s, 'xlsx')}
+              isExporting={isExporting}
+              isLoadingTables={isLoadingTables}
+              onRefreshTables={() => config && loadTables(config, selectedDatabase)}
+              isLightTheme={isLightTheme}
+              onOpenErDiagram={handleOpenErDiagram}
+            />
+
+            <TablePreview
+              previewData={previewData}
+              isLoading={isLoadingPreview}
+              currentPage={currentPage}
+              pageSize={pageSize}
+              onPageChange={handlePageChange}
+              onPageSizeChange={handlePageSizeChange}
+              onExportExcel={() =>
+                selectedTable && handleExportSingle(selectedTable, selectedTableSchema, 'xlsx')
+              }
+              onExportCsv={() =>
+                selectedTable && handleExportSingle(selectedTable, selectedTableSchema, 'csv')
+              }
+              isExporting={isExporting}
+              onRefresh={() =>
+                config &&
+                selectedTable &&
+                loadTablePreview(
+                  config,
+                  selectedTable,
+                  selectedTableSchema,
+                  currentPage,
+                  pageSize,
+                  selectedDatabase
+                )
+              }
+              schema={selectedTableSchema}
+              isLightTheme={isLightTheme}
+              onOpenErDiagram={handleOpenErDiagram}
+            />
+          </main>
+        </div>
+      )}
+
+      {/* ER Diagram Modal */}
+      <ErDiagramModal
+        isOpen={isErDiagramOpen}
+        onClose={() => setIsErDiagramOpen(false)}
+        tables={tables}
         selectedDatabase={selectedDatabase}
-        totalTablesCount={tables.length}
-        onShowSplash={() => setShowSplash(true)}
+        relationships={relationships}
+        isLightTheme={isLightTheme}
       />
 
-      {/* Main Content Area */}
-      {isConnected && config ? (
-        <main className="flex-1 flex overflow-hidden">
-          {/* Sidebar */}
-          <Sidebar
-            databases={databases}
-            selectedDatabase={selectedDatabase}
-            onSelectDatabase={handleSelectDatabase}
-            tables={tables}
-            selectedTable={selectedTable}
-            onSelectTable={handleSelectTable}
-            selectedTableSchema={selectedTableSchema}
-            selectedForExport={selectedForExport}
-            onToggleExportSelection={handleToggleExportSelection}
-            onSelectAllForExport={handleSelectAllForExport}
-            onClearExportSelection={handleClearExportSelection}
-            onExportSelected={handleExportSelected}
-            onQuickExportSingle={(t, s) => handleExportSingle(t, s, 'xlsx')}
-            isExporting={isExporting}
-            isLoadingTables={isLoadingTables}
-            onRefreshTables={() => loadTables(config, selectedDatabase)}
-          />
-
-          {/* Table Preview & Data Area */}
-          <TablePreview
-            previewData={previewData}
-            isLoading={isLoadingPreview}
-            currentPage={currentPage}
-            pageSize={pageSize}
-            onPageChange={handlePageChange}
-            onPageSizeChange={handlePageSizeChange}
-            onExportExcel={() =>
-              selectedTable &&
-              handleExportSingle(selectedTable, selectedTableSchema, 'xlsx')
-            }
-            onExportCsv={() =>
-              selectedTable &&
-              handleExportSingle(selectedTable, selectedTableSchema, 'csv')
-            }
-            isExporting={isExporting}
-            onRefresh={() =>
-              selectedTable &&
-              loadTablePreview(
-                config,
-                selectedTable,
-                selectedTableSchema,
-                currentPage,
-                pageSize,
-                selectedDatabase
-              )
-            }
-            schema={selectedTableSchema}
-          />
-        </main>
-      ) : (
-        /* Welcome / Disconnected Hero Screen */
-        <main className="flex-1 flex items-center justify-center p-6 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-slate-950">
-          <div className="max-w-2xl w-full text-center space-y-8 py-10 px-6">
-            {/* Devil Woman Avatar & QA Badge */}
-            <div className="flex flex-col items-center gap-3">
-              <DevilWomanIcon size={100} />
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-red-950/80 to-rose-950/80 border border-red-500/40 text-red-300 text-xs font-bold tracking-wider shadow-[0_0_15px_rgba(244,63,94,0.3)]">
-                <Flame className="w-3.5 h-3.5 text-rose-500 animate-pulse" />
-                <span>For Napuru QA Team</span>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-                Inspect Databases & Export Tables <br />
-                <span className="bg-gradient-to-r from-rose-400 via-red-300 to-amber-300 bg-clip-text text-transparent">
-                  Directly to Formatted Excel Files
-                </span>
-              </h2>
-              <p className="text-slate-400 text-sm max-w-lg mx-auto leading-relaxed">
-                Connect securely to any PostgreSQL or MySQL database. Browse all tables, preview
-                schema & rows, and export single or multiple tables with auto-styled columns, frozen
-                headers, and filters.
-              </p>
-            </div>
-
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <button
-                onClick={() => setIsConnectionModalOpen(true)}
-                className="w-full sm:w-auto flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-gradient-to-r from-rose-600 via-red-600 to-amber-500 hover:from-rose-500 hover:to-amber-400 text-white font-bold text-sm shadow-xl shadow-red-950/60 transition-all hover:scale-105"
-              >
-                <PlugZap className="w-4 h-4" />
-                <span>Connect Database</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Feature Badges */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6 text-left">
-              <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800/80 space-y-1.5">
-                <div className="flex items-center gap-2 text-rose-400 font-semibold text-xs">
-                  <Database className="w-4 h-4" />
-                  <span>PostgreSQL & MySQL</span>
-                </div>
-                <p className="text-slate-400 text-[11px] leading-normal">
-                  Connect via host credentials or full connection URI with SSL support.
-                </p>
-              </div>
-
-              <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800/80 space-y-1.5">
-                <div className="flex items-center gap-2 text-amber-400 font-semibold text-xs">
-                  <FileSpreadsheet className="w-4 h-4" />
-                  <span>Styled Excel (.xlsx)</span>
-                </div>
-                <p className="text-slate-400 text-[11px] leading-normal">
-                  Auto-sized column widths, bold colored headers, auto-filters, and date formatting.
-                </p>
-              </div>
-
-              <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800/80 space-y-1.5">
-                <div className="flex items-center gap-2 text-sky-400 font-semibold text-xs">
-                  <Layers className="w-4 h-4" />
-                  <span>Multi-Sheet Batch Export</span>
-                </div>
-                <p className="text-slate-400 text-[11px] leading-normal">
-                  Select multiple tables and export all of them into a single workbook in 1 click.
-                </p>
-              </div>
-            </div>
-          </div>
-        </main>
-      )}
-
-      {/* Connection Modal */}
+      {/* Global Connection Modal */}
       <ConnectionModal
         isOpen={isConnectionModalOpen}
         onClose={() => setIsConnectionModalOpen(false)}
         onConnect={handleConnect}
         currentConfig={config}
+        isLightTheme={isLightTheme}
       />
 
-      {/* Toast Alerts */}
+      {/* Toast Notifications */}
       <ToastContainer toasts={toasts} onDismiss={removeToast} />
     </div>
   );

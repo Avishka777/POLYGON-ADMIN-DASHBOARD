@@ -21,6 +21,7 @@ interface ConnectionModalProps {
   onClose: () => void;
   onConnect: (config: DbConnectionConfig) => Promise<void>;
   currentConfig: DbConnectionConfig | null;
+  isLightTheme?: boolean;
 }
 
 const STORAGE_KEY = 'saved_db_connections_v1';
@@ -30,6 +31,7 @@ export const ConnectionModal: React.FC<ConnectionModalProps> = ({
   onClose,
   onConnect,
   currentConfig,
+  isLightTheme = false,
 }) => {
   const [dbType, setDbType] = useState<'postgres' | 'mysql'>('postgres');
   const [tab, setTab] = useState<'form' | 'uri'>('form');
@@ -211,21 +213,29 @@ export const ConnectionModal: React.FC<ConnectionModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 overflow-y-auto">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden text-slate-100 my-8">
+      <div
+        className={`border rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden my-8 transition-colors ${
+          isLightTheme ? 'bg-white border-slate-200 text-slate-900' : 'bg-slate-900 border-slate-800 text-slate-100'
+        }`}
+      >
         {/* Modal Header */}
-        <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/50">
+        <div
+          className={`px-6 py-4 border-b flex items-center justify-between ${
+            isLightTheme ? 'bg-slate-50 border-slate-200' : 'bg-slate-950/50 border-slate-800'
+          }`}
+        >
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+            <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500">
               <Database className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-slate-100">Database Connection</h2>
-              <p className="text-xs text-slate-400">Configure PostgreSQL or MySQL credentials</p>
+              <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">Database Connection</h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Configure PostgreSQL or MySQL credentials</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -236,8 +246,8 @@ export const ConnectionModal: React.FC<ConnectionModalProps> = ({
           {/* Saved Profiles Quick Select */}
           {savedProfiles.length > 0 && (
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-slate-400 flex items-center gap-1.5">
-                <History className="w-3.5 h-3.5 text-sky-400" />
+              <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                <History className="w-3.5 h-3.5 text-sky-500" />
                 Saved Connection Profiles
               </label>
               <div className="flex flex-wrap gap-2">
@@ -245,17 +255,21 @@ export const ConnectionModal: React.FC<ConnectionModalProps> = ({
                   <div
                     key={p.id}
                     onClick={() => handleSelectProfile(p)}
-                    className="group flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-800 border border-slate-700 hover:border-slate-600 text-xs text-slate-300 hover:text-white cursor-pointer transition-all"
+                    className={`group flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-medium cursor-pointer transition-all ${
+                      isLightTheme
+                        ? 'bg-slate-100 border-slate-200 text-slate-800 hover:bg-slate-200'
+                        : 'bg-slate-800/80 border-slate-700 text-slate-300 hover:text-white'
+                    }`}
                   >
                     <span
                       className={`w-2 h-2 rounded-full ${
-                        p.config.type === 'postgres' ? 'bg-sky-400' : 'bg-amber-400'
+                        p.config.type === 'postgres' ? 'bg-sky-500' : 'bg-amber-500'
                       }`}
                     />
-                    <span className="font-medium truncate max-w-[120px]">{p.name}</span>
+                    <span className="truncate max-w-[120px]">{p.name}</span>
                     <button
                       onClick={(e) => handleDeleteProfile(p.id, e)}
-                      className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-rose-400 p-0.5 rounded transition-opacity"
+                      className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-rose-500 p-0.5 rounded transition-opacity"
                     >
                       <Trash2 className="w-3 h-3" />
                     </button>
@@ -267,7 +281,7 @@ export const ConnectionModal: React.FC<ConnectionModalProps> = ({
 
           {/* Database Engine Selector */}
           <div>
-            <label className="text-xs font-semibold text-slate-400 block mb-2">
+            <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 block mb-2">
               Database Engine
             </label>
             <div className="grid grid-cols-2 gap-3">
@@ -279,22 +293,26 @@ export const ConnectionModal: React.FC<ConnectionModalProps> = ({
                 }}
                 className={`flex items-center gap-3 p-3 rounded-xl border transition-all text-left ${
                   dbType === 'postgres'
-                    ? 'bg-sky-500/10 border-sky-500/50 text-sky-200 shadow-md shadow-sky-950/40'
+                    ? isLightTheme
+                      ? 'bg-sky-50 border-sky-300 text-sky-900 shadow-xs'
+                      : 'bg-sky-500/10 border-sky-500/50 text-sky-200 shadow-md'
+                    : isLightTheme
+                    ? 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
                     : 'bg-slate-950/40 border-slate-800 text-slate-400 hover:border-slate-700'
                 }`}
               >
                 <div
                   className={`w-9 h-9 rounded-lg flex items-center justify-center font-bold text-xs ${
                     dbType === 'postgres'
-                      ? 'bg-sky-500 text-slate-950 shadow'
-                      : 'bg-slate-800 text-slate-300'
+                      ? 'bg-sky-500 text-white shadow'
+                      : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
                   }`}
                 >
                   PG
                 </div>
                 <div>
-                  <div className="font-bold text-sm text-slate-100">PostgreSQL</div>
-                  <div className="text-[11px] text-slate-400">Port 5432 (pg client)</div>
+                  <div className="font-bold text-sm text-slate-900 dark:text-slate-100">PostgreSQL</div>
+                  <div className="text-[11px] text-slate-500 dark:text-slate-400">Port 5432 (pg client)</div>
                 </div>
               </button>
 
@@ -306,22 +324,26 @@ export const ConnectionModal: React.FC<ConnectionModalProps> = ({
                 }}
                 className={`flex items-center gap-3 p-3 rounded-xl border transition-all text-left ${
                   dbType === 'mysql'
-                    ? 'bg-amber-500/10 border-amber-500/50 text-amber-200 shadow-md shadow-amber-950/40'
+                    ? isLightTheme
+                      ? 'bg-amber-50 border-amber-300 text-amber-900 shadow-xs'
+                      : 'bg-amber-500/10 border-amber-500/50 text-amber-200 shadow-md'
+                    : isLightTheme
+                    ? 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
                     : 'bg-slate-950/40 border-slate-800 text-slate-400 hover:border-slate-700'
                 }`}
               >
                 <div
                   className={`w-9 h-9 rounded-lg flex items-center justify-center font-bold text-xs ${
                     dbType === 'mysql'
-                      ? 'bg-amber-500 text-slate-950 shadow'
-                      : 'bg-slate-800 text-slate-300'
+                      ? 'bg-amber-500 text-white shadow'
+                      : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
                   }`}
                 >
                   MY
                 </div>
                 <div>
-                  <div className="font-bold text-sm text-slate-100">MySQL</div>
-                  <div className="text-[11px] text-slate-400">Port 3306 (mysql2)</div>
+                  <div className="font-bold text-sm text-slate-900 dark:text-slate-100">MySQL</div>
+                  <div className="text-[11px] text-slate-500 dark:text-slate-400">Port 3306 (mysql2 client)</div>
                 </div>
               </button>
             </div>
