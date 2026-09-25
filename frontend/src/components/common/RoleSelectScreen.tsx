@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 
 import {
   ArrowRight,
@@ -18,6 +18,7 @@ import {
   Terminal,
   Zap,
 } from 'lucide-react';
+import { DeveloperPasscodeModal } from '@/components/developer/DeveloperPasscodeModal';
 import { DevilWomanIcon } from './icons/DevilWomanIcon';
 import { KingDeveloperIcon } from './icons/KingDeveloperIcon';
 
@@ -32,6 +33,7 @@ export const RoleSelectScreen: React.FC<RoleSelectScreenProps> = ({
   isLightTheme,
   onToggleTheme,
 }) => {
+  const [isPasscodeModalOpen, setIsPasscodeModalOpen] = useState(false);
   return (
     <div
       className={`min-h-screen flex flex-col justify-between p-6 sm:p-10 font-sans transition-colors duration-300 ${
@@ -165,7 +167,7 @@ export const RoleSelectScreen: React.FC<RoleSelectScreenProps> = ({
 
           {/* DEVELOPER CARD */}
           <div
-            onClick={() => onSelectRole('developer')}
+            onClick={() => setIsPasscodeModalOpen(true)}
             className={`group relative rounded-3xl p-8 cursor-pointer transition-all duration-300 border flex flex-col justify-between overflow-hidden shadow-xl hover:-translate-y-1.5 ${
               isLightTheme
                 ? 'bg-white hover:bg-indigo-50/40 border-slate-200 hover:border-indigo-300 shadow-slate-200/50'
@@ -226,6 +228,17 @@ export const RoleSelectScreen: React.FC<RoleSelectScreenProps> = ({
           </div>
         </div>
       </main>
+
+      {/* Developer Passcode Modal */}
+      <DeveloperPasscodeModal
+        isOpen={isPasscodeModalOpen}
+        onClose={() => setIsPasscodeModalOpen(false)}
+        onSuccess={() => {
+          setIsPasscodeModalOpen(false);
+          onSelectRole('developer');
+        }}
+        isLightTheme={isLightTheme}
+      />
 
       {/* Footer */}
       <footer className="max-w-6xl w-full mx-auto py-3 text-center text-xs text-slate-400 border-t border-slate-200 dark:border-slate-800/80">

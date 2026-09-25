@@ -3,8 +3,10 @@
 import React from 'react';
 
 import {
+  Activity,
   Moon,
   RefreshCw,
+  Scale,
   Sun,
 } from 'lucide-react';
 import { DbConnectionConfig } from '@/lib/db/types';
@@ -23,6 +25,8 @@ interface HeaderProps {
   isLightTheme?: boolean;
   onToggleTheme?: () => void;
   onGoToMenu?: () => void;
+  onOpenScaleSimulator?: () => void;
+  onOpenBackendHealth?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -37,6 +41,8 @@ export const Header: React.FC<HeaderProps> = ({
   isLightTheme = false,
   onToggleTheme,
   onGoToMenu,
+  onOpenScaleSimulator,
+  onOpenBackendHealth,
 }) => {
   const isQa = userRole === 'qa';
 
@@ -86,6 +92,42 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Actions */}
       <div className="flex items-center gap-2.5">
+
+        {/* Wi-Fi Scale Simulator Trigger */}
+        {onOpenScaleSimulator && (
+          <button
+            onClick={onOpenScaleSimulator}
+            className={`flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl border transition-all shadow-xs ${
+              isQa
+                ? isLightTheme
+                  ? 'bg-rose-50 hover:bg-rose-100 text-rose-700 border-rose-200'
+                  : 'bg-rose-950/40 hover:bg-rose-900/50 text-rose-400 border-rose-800/60'
+                : isLightTheme
+                ? 'bg-amber-50 hover:bg-amber-100 text-amber-700 border-amber-200'
+                : 'bg-amber-950/40 hover:bg-amber-900/50 text-amber-400 border-amber-800/60'
+            }`}
+            title="Open Wi-Fi Scale Simulator"
+          >
+            <Scale className="w-4 h-4 text-amber-500" />
+            <span className="hidden sm:inline">Wi-Fi Scale</span>
+          </button>
+        )}
+
+        {/* Backend Health Trigger (Developer Only) */}
+        {!isQa && onOpenBackendHealth && (
+          <button
+            onClick={onOpenBackendHealth}
+            className={`flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl border transition-all shadow-xs ${
+              isLightTheme
+                ? 'bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border-indigo-200'
+                : 'bg-indigo-950/40 hover:bg-indigo-900/50 text-indigo-400 border-indigo-800/60'
+            }`}
+            title="Open Backend Health Hub"
+          >
+            <Activity className="w-4 h-4 text-indigo-500" />
+            <span className="hidden sm:inline">Backend Health</span>
+          </button>
+        )}
 
         {/* Menu Navigation Button */}
         {onGoToMenu && (

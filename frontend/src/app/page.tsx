@@ -1,13 +1,14 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { BackendHealthPage } from '@/components/developer/BackendHealthPage';
 import { ConnectionModal } from '@/components/db-exporter/ConnectionModal';
 import { DeveloperSplashScreen } from '@/components/developer/DeveloperSplashScreen';
 import { ErDiagramModal } from '@/components/db-exporter/ErDiagramModal';
 import { Header } from '@/components/common/Header';
 import { RoleMenuDashboard } from '@/components/common/RoleMenuDashboard';
 import { RoleSelectScreen } from '@/components/common/RoleSelectScreen';
-import { ScaleSimulatorModal } from '@/components/developer/ScaleSimulatorModal';
+import { ScaleSimulatorModal } from '@/components/scale/ScaleSimulatorModal';
 import { Sidebar } from '@/components/db-exporter/Sidebar';
 import { QaSplashScreen } from '@/components/qa/QaSplashScreen';
 import { TablePreview } from '@/components/db-exporter/TablePreview';
@@ -25,8 +26,8 @@ export default function Home() {
   // Role state: 'qa' | 'developer' | null
   const [userRole, setUserRole] = useState<'qa' | 'developer' | null>(null);
 
-  // View state: 'role-select' | 'splash' | 'menu' | 'db-exporter'
-  const [activeView, setActiveView] = useState<'role-select' | 'splash' | 'menu' | 'db-exporter'>('role-select');
+  // View state: 'role-select' | 'splash' | 'menu' | 'db-exporter' | 'backend-health'
+  const [activeView, setActiveView] = useState<'role-select' | 'splash' | 'menu' | 'db-exporter' | 'backend-health'>('role-select');
 
   // Scale Simulator Modal state
   const [isScaleModalOpen, setIsScaleModalOpen] = useState(false);
@@ -440,6 +441,7 @@ export default function Home() {
             }
           }}
           onOpenScaleSimulator={() => setIsScaleModalOpen(true)}
+          onOpenBackendHealth={() => setActiveView('backend-health')}
           isLightTheme={isLightTheme}
           onToggleTheme={toggleTheme}
           config={config}
@@ -463,6 +465,8 @@ export default function Home() {
             isLightTheme={isLightTheme}
             onToggleTheme={toggleTheme}
             onGoToMenu={() => setActiveView('menu')}
+            onOpenScaleSimulator={() => setIsScaleModalOpen(true)}
+            onOpenBackendHealth={() => setActiveView('backend-health')}
           />
 
           <main className="flex-1 flex overflow-hidden">
@@ -522,6 +526,16 @@ export default function Home() {
         </div>
       )}
 
+      {/* 5. DEDICATED BACKEND HEALTH PAGE (DEVELOPER ONLY) */}
+      {activeView === 'backend-health' && userRole === 'developer' && (
+        <BackendHealthPage
+          onGoToMenu={() => setActiveView('menu')}
+          onSwitchRole={handleSwitchRole}
+          isLightTheme={isLightTheme}
+          onToggleTheme={toggleTheme}
+        />
+      )}
+
       {/* ER Diagram Modal */}
       <ErDiagramModal
         isOpen={isErDiagramOpen}
@@ -541,7 +555,7 @@ export default function Home() {
         isLightTheme={isLightTheme}
       />
 
-      {/* Scale Simulator Modal (Developer Only) */}
+      {/* Scale Simulator Modal (QA & Developer) */}
       <ScaleSimulatorModal
         isOpen={isScaleModalOpen}
         onClose={() => setIsScaleModalOpen(false)}

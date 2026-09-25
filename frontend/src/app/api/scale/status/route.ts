@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getScaleServerStatus } from '@/lib/developer/scaleSimulator';
+import { getScaleServerStatus } from '@/lib/scale/scaleSimulator';
 
 export const dynamic = 'force-dynamic';
 
