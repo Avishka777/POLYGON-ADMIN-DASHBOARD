@@ -6,14 +6,39 @@ A unified, role-based desktop and web management platform engineered for the **P
 
 ## 🌟 Key Features & Workspaces
 
-### 1. Role-Based Security & Workspaces
+### 1. Dedicated Multi-Route Architecture
+The application features a clean, RESTful Next.js App Router URL hierarchy:
+
+| Route URL | Workspace / Purpose |
+| :--- | :--- |
+| `http://localhost:3000/` | Root Entrypoint (redirects to `/select-role`) |
+| `http://localhost:3000/select-role` | Role Selection Workspace (QA vs Developer Authentication) |
+| `http://localhost:3000/developer` | Developer Operations Hub & Management Dashboard |
+| `http://localhost:3000/developer/db-exporter` | Full-Page DB Exporter Workspace (`/developer/db-exportoer` alias supported) |
+| `http://localhost:3000/developer/wifi-scale` | Full-Page Hardware Wi-Fi Scale Simulator |
+| `http://localhost:3000/developer/applications` | Applications Catalog Hub (Modular tile view — not all on one screen) |
+| `http://localhost:3000/developer/applications/polygon` | Dedicated Polygon Operations Page (`/api/app-version` + 5 health probes) |
+| `http://localhost:3000/developer/applications/[appId]` | Dedicated Single-App Diagnostic Page for each ecosystem mobile app |
+| `http://localhost:3000/qa` | Napuru QA Operations Dashboard |
+| `http://localhost:3000/qa/db-exporter` | QA Database Exporter Workspace |
+| `http://localhost:3000/qa/wifi-scale` | QA Wi-Fi Scale Testing Console |
+
+---
+
+### 2. Full-Website Glassmorphism Design System
+- **Frosted Glass Panels & Cards**: Engineered with `backdrop-filter: blur(16px)`, translucent glass borders (`rgba(255,255,255,0.15)`), and soft depth shadows.
+- **Ambient Glowing Mesh Orbs**: Dynamic background gradient blurs (purple, indigo, amber) that shine through frosted glass panels.
+- **Theme Resilience**: Seamlessly adapts between ultra-clean white frosted glass and futuristic dark frosted glass.
+
+---
+
+### 3. Role-Based Security & Workspaces
 - **Napuru QA Operations Hub**:
-  - Purpose-built for the QA testing and release workflow.
-  - Features the **DB Exporter** workspace and the **Wi-Fi Scale Simulator**.
+  - Purpose-built for the QA testing and release workflow (`/qa`, `/qa/db-exporter`, `/qa/wifi-scale`).
   - Powered by custom vector Bad QA branding (clean SVG, no raster image dependencies).
 - **King of Developer Mode**:
-  - Gated by cryptographically hashed authentication (salted SHA-256).
-  - Unlocks the **DB Exporter**, **Wi-Fi Scale Simulator**, and the dedicated full-page **Backend Health Hub**.
+  - Gated by cryptographically hashed authentication (salted SHA-256 with passcode `Avishka@1`).
+  - Unlocks full access to developer pages: `/developer`, `/developer/db-exporter`, `/developer/wifi-scale`, `/developer/applications`, and `/developer/applications/polygon`.
 
 ---
 
@@ -40,19 +65,28 @@ Compatible with the **Codi Net** mobile weighing application protocol:
 
 ---
 
-### 4. Dedicated Developer Backend Health Hub
-A full-page operations center to test and monitor live backend health across **all 6 Polygon mobile apps**:
+### 4. Dedicated Developer "All App State" & Health Hub
+A full-page operations center to test and monitor live backend health, probes, and release versions across **all 6 Polygon mobile apps**:
 - **Zero-CORS Server-Side Proxy**: Bypasses browser cross-origin limitations (`/api/developer/health-check`) while capturing latency in milliseconds (`ms`).
-- **Separate & Batch Testing**: Inspect individual environments (DEV, UAT, PROD), re-check a single project, or batch-ping all 18 endpoints simultaneously.
+- **Separate & Batch Testing**: Inspect individual environments (DEV, UAT, PROD), re-check a single project, or batch-ping all endpoints simultaneously.
 - **Live JSON Payload Inspector**: Formatted drawer revealing live `status`, `uptime`, `service`, `version`, and server timestamps.
 
-#### Configured Endpoints (`.../health`):
+#### Polygon Mobile Complete Route Suite:
+Clicking on **Polygon Mobile** opens an interactive explorer showing all 6 registered routes across **DEV**, **UAT**, and **PROD**:
+1. `GET /api/app-version` — Release version info and mobile client compatibility
+2. `GET /health` — Basic service status, uptime, environment, version, and service name
+3. `GET /health/detailed` — System metrics, CPU/memory usage, hostname, and database connectivity (PlantCare, CollectionOfficer, Admin)
+4. `GET /health/live` — Container orchestration liveness probe (Docker / K8s)
+5. `GET /health/ready` — Container orchestration readiness probe (traffic acceptance)
+6. `GET /home` — Welcome overview and available API endpoints directory
+
+#### Configured Base Health Endpoints (`.../health`):
 
 | Project | Environment | Health Endpoint URL |
 | :--- | :--- | :--- |
-| **Polygon Mobile** | DEV | `https://dev-mob-api.polygon.lk/polygon/health` |
-| | UAT | `https://uat-mob-api.polygon.lk/polygon/health` |
-| | PROD | `https://mob-api.polygon.lk/polygon/health` |
+| **Polygon Mobile** | DEV | `https://dev-mob-api.polygon.lk/polygon/health` *(+ 5 extra routes)* |
+| | UAT | `https://uat-mob-api.polygon.lk/polygon/health` *(+ 5 extra routes)* |
+| | PROD | `https://mob-api.polygon.lk/polygon/health` *(+ 5 extra routes)* |
 | **Codi Net** | DEV | `https://collector-api.polygonagro.com/agro-api/collection-api/health` |
 | | UAT | `https://collector-mobile-app-api-uat.vercel.app/agro-api/collection-api/health` |
 | | PROD | `https://collector-api-prod.polygonagro.com/agro-api/collection-api/health` |
@@ -96,27 +130,19 @@ POLYGON-ADMIN-DASHBOARD/
 │   │   │   │   └── scale/        # Scale simulator status, start, stop, config
 │   │   │   ├── globals.css
 │   │   │   ├── layout.tsx
-│   │   │   └── page.tsx          # Root view controller (Role select, Menu, Exporter, Health)
+│   │   │   └── page.tsx          # Root view controller (Redirects to /select-role)
 │   │   ├── components/
 │   │   │   ├── common/           # Shared UI (Header, RoleSelectScreen, RoleMenuDashboard)
 │   │   │   │   └── icons/        # SVG vector icons (KingDeveloperIcon, DevilWomanIcon)
 │   │   │   ├── db-exporter/      # DB Exporter (Sidebar, TablePreview, ConnectionModal)
 │   │   │   ├── developer/        # Developer-only UI (BackendHealthPage, DeveloperPasscodeModal)
 │   │   │   ├── qa/               # QA-specific UI (QaSplashScreen)
-│   │   │   └── scale/            # Shared Scale Simulator UI (ScaleSimulatorModal)
+│   │   │   └── scale/            # Shared Scale Simulator UI (ScaleSimulatorWorkspace)
 │   │   └── lib/
 │   │       ├── db/               # DB connection drivers & Excel export generator
 │   │       ├── developer/        # Backend health configuration & security hash
 │   │       └── scale/            # BUDRY MFD-300 TCP & HTTP server engine
 │   └── package.json
-│
-└── backend/                      # Optional standalone Express microservice
-    ├── src/
-    │   ├── common/routes/        # Common health checks
-    │   ├── developer/routes/     # Developer health proxy routes
-    │   └── scale/                # Standalone scale simulation service
-    ├── server.js                 # Express application root (port 8001)
-    └── package.json
 ```
 
 ---
@@ -129,7 +155,7 @@ POLYGON-ADMIN-DASHBOARD/
 
 ---
 
-### Running the Frontend (Next.js)
+### Running the Application (Unified Full-Stack Next.js)
 
 1. Navigate to the frontend directory:
    ```bash
@@ -145,21 +171,7 @@ POLYGON-ADMIN-DASHBOARD/
    ```
 4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
----
-
-### Running the Backend (Optional Standalone Microservice)
-
-1. Navigate to the backend directory:
-   ```bash
-   cd "POLYGON-ADMIN-DASHBOARD/backend"
-   ```
-2. Start the Express server:
-   ```bash
-   npm start
-   ```
-   The backend will run at [http://localhost:8001](http://localhost:8001).
-
----
+> **Note**: Next.js automatically runs all required backend APIs, database connections, and the hardware Wi-Fi Scale TCP socket server (`33581`) / HTTP server (`3001`) internally. No secondary backend process is needed!
 
 ### Production Build
 

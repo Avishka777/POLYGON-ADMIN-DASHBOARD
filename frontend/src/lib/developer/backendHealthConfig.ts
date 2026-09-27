@@ -1,3 +1,12 @@
+export interface AppRouteConfig {
+  id: string;
+  name: string;
+  path: string;
+  description: string;
+  type: 'health' | 'detailed' | 'live' | 'ready' | 'version' | 'home';
+  method: 'GET' | 'POST';
+}
+
 export interface EnvironmentConfig {
   name: 'DEV' | 'UAT' | 'PROD';
   baseUrl: string;
@@ -10,12 +19,70 @@ export interface ProjectHealthConfig {
   subtitle: string;
   icon: string;
   environments: EnvironmentConfig[];
+  routes?: AppRouteConfig[];
 }
 
 export function buildHealthUrl(baseUrl: string): string {
   const clean = baseUrl.trim().replace(/\/+$/, '');
   return `${clean}/health`;
 }
+
+export function buildRouteUrl(baseUrl: string, routePath: string): string {
+  const cleanBase = baseUrl.trim().replace(/\/+$/, '');
+  const cleanPath = routePath.trim().replace(/^\/+/, '');
+  return `${cleanBase}/${cleanPath}`;
+}
+
+export const POLYGON_APP_ROUTES: AppRouteConfig[] = [
+  {
+    id: 'app-version',
+    name: 'App Version',
+    path: 'api/app-version',
+    description: 'Release version info and mobile client compatibility (GET /api/app-version)',
+    type: 'version',
+    method: 'GET',
+  },
+  {
+    id: 'health',
+    name: 'Basic Health',
+    path: 'health',
+    description: 'Service status, uptime, node environment, package version, and service name (GET /health)',
+    type: 'health',
+    method: 'GET',
+  },
+  {
+    id: 'health-detailed',
+    name: 'Detailed Health',
+    path: 'health/detailed',
+    description: 'Comprehensive system metrics, CPU/memory usage, hostname, and database connectivity (GET /health/detailed)',
+    type: 'detailed',
+    method: 'GET',
+  },
+  {
+    id: 'health-live',
+    name: 'Liveness Probe',
+    path: 'health/live',
+    description: 'Container orchestration liveness probe to verify container is alive (GET /health/live)',
+    type: 'live',
+    method: 'GET',
+  },
+  {
+    id: 'health-ready',
+    name: 'Readiness Probe',
+    path: 'health/ready',
+    description: 'Container orchestration readiness probe to verify service can accept traffic (GET /health/ready)',
+    type: 'ready',
+    method: 'GET',
+  },
+  {
+    id: 'home',
+    name: 'API Home & Docs',
+    path: 'home',
+    description: 'Welcome overview and available API endpoints directory (GET /home)',
+    type: 'home',
+    method: 'GET',
+  },
+];
 
 export const POLYGON_PROJECTS: ProjectHealthConfig[] = [
   {
@@ -40,6 +107,7 @@ export const POLYGON_PROJECTS: ProjectHealthConfig[] = [
         healthUrl: buildHealthUrl('https://mob-api.polygon.lk/polygon/'),
       },
     ],
+    routes: POLYGON_APP_ROUTES,
   },
   {
     id: 'codi-net',

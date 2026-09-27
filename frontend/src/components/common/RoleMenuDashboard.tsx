@@ -381,7 +381,7 @@ export const RoleMenuDashboard: React.FC<RoleMenuDashboardProps> = ({
               </div>
             </div>
 
-            {/* CARD 3: BACKEND HEALTH HUB (DEVELOPER ONLY) */}
+            {/* CARD 3: ALL APP STATE (DEVELOPER ONLY) */}
             <div
               onClick={onOpenBackendHealth}
               className={`group p-7 rounded-3xl border transition-all duration-300 flex flex-col justify-between space-y-6 cursor-pointer shadow-xl hover:-translate-y-1.5 ${
@@ -403,7 +403,7 @@ export const RoleMenuDashboard: React.FC<RoleMenuDashboardProps> = ({
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-extrabold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-                      Backend Health
+                      All App State
                     </h3>
                     {/* App Icons Ribbon */}
                     <div className="flex items-center -space-x-1.5 overflow-hidden py-0.5">
@@ -418,7 +418,7 @@ export const RoleMenuDashboard: React.FC<RoleMenuDashboardProps> = ({
                     </div>
                   </div>
                   <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                    Live <code>/health</code> diagnostics across DEV, UAT & PROD for all 6 Polygon mobile apps with latency & response inspection.
+                    Live health probes, system metrics, and app version inspection across DEV, UAT & PROD for all 6 Polygon mobile apps.
                   </p>
                 </div>
 
@@ -428,12 +428,12 @@ export const RoleMenuDashboard: React.FC<RoleMenuDashboardProps> = ({
                   }`}
                 >
                   <div className="flex items-center justify-between font-medium">
-                    <span className="text-slate-500 dark:text-slate-400">Target Projects:</span>
-                    <span className="text-indigo-600 dark:text-indigo-400 font-bold">6 Apps (18 Envs)</span>
+                    <span className="text-slate-500 dark:text-slate-400">Target Ecosystem:</span>
+                    <span className="text-indigo-600 dark:text-indigo-400 font-bold">All 6 Apps (18 Envs)</span>
                   </div>
                   <div className="flex items-center justify-between font-medium">
-                    <span className="text-slate-500 dark:text-slate-400">Endpoint Target:</span>
-                    <span className="text-slate-700 dark:text-slate-300 font-mono font-semibold">.../health</span>
+                    <span className="text-slate-500 dark:text-slate-400">Monitored Routes:</span>
+                    <span className="text-slate-700 dark:text-slate-300 font-mono font-semibold">Health, Probes & Version</span>
                   </div>
                 </div>
               </div>
@@ -441,7 +441,7 @@ export const RoleMenuDashboard: React.FC<RoleMenuDashboardProps> = ({
               <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs font-bold text-indigo-600 dark:text-indigo-400">
                 <div className="flex items-center gap-1.5">
                   <Activity className="w-4 h-4" />
-                  <span>Inspect Backend Health</span>
+                  <span>Navigate to All 6 Apps</span>
                 </div>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </div>

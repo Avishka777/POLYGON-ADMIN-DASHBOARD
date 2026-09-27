@@ -14,7 +14,7 @@ import {
   Sparkles,
   X,
 } from 'lucide-react';
-import { verifyDeveloperPasscode } from '@/lib/developer/security';
+import { verifyDeveloperPasscode, setDeveloperAuthenticated } from '@/lib/developer/security';
 import { KingDeveloperIcon } from '@/components/common/icons/KingDeveloperIcon';
 
 interface DeveloperPasscodeModalProps {
@@ -59,6 +59,7 @@ export const DeveloperPasscodeModal: React.FC<DeveloperPasscodeModalProps> = ({
     try {
       const isValid = await verifyDeveloperPasscode(passcode);
       if (isValid) {
+        setDeveloperAuthenticated(true);
         onSuccess();
       } else {
         setError('Access Denied: Invalid Developer Passcode');
@@ -75,20 +76,12 @@ export const DeveloperPasscodeModal: React.FC<DeveloperPasscodeModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fade-in">
-      <div
-        className={`relative w-full max-w-md rounded-3xl border shadow-2xl p-6 sm:p-8 space-y-6 transition-all ${
-          isLightTheme ? 'bg-white border-slate-200' : 'bg-slate-900 border-slate-800'
-        }`}
-      >
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fade-in">
+      <div className="relative w-full max-w-md rounded-3xl glass-panel shadow-2xl p-6 sm:p-8 space-y-6 transition-all">
         {/* Close Button */}
         <button
           onClick={onClose}
-          className={`absolute top-4 right-4 p-2 rounded-xl border transition-colors ${
-            isLightTheme
-              ? 'hover:bg-slate-100 border-slate-200 text-slate-500'
-              : 'hover:bg-slate-800 border-slate-800 text-slate-400'
-          }`}
+          className="absolute top-4 right-4 p-2 rounded-xl glass-card text-slate-400 hover:text-white transition-colors"
         >
           <X className="w-4 h-4" />
         </button>

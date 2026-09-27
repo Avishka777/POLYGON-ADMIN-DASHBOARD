@@ -23,3 +23,37 @@ export async function verifyDeveloperPasscode(input: string): Promise<boolean> {
     return false;
   }
 }
+
+const DEV_AUTH_SESSION_KEY = 'polygon_dev_authenticated_session';
+
+export function isDeveloperAuthenticated(): boolean {
+  if (typeof window === 'undefined') return false;
+  try {
+    return sessionStorage.getItem(DEV_AUTH_SESSION_KEY) === 'true';
+  } catch {
+    return false;
+  }
+}
+
+export function setDeveloperAuthenticated(authenticated: boolean): void {
+  if (typeof window === 'undefined') return;
+  try {
+    if (authenticated) {
+      sessionStorage.setItem(DEV_AUTH_SESSION_KEY, 'true');
+    } else {
+      sessionStorage.removeItem(DEV_AUTH_SESSION_KEY);
+    }
+  } catch {
+    // Ignore
+  }
+}
+
+export function clearDeveloperAccess(): void {
+  if (typeof window === 'undefined') return;
+  try {
+    sessionStorage.removeItem(DEV_AUTH_SESSION_KEY);
+  } catch {
+    // Ignore
+  }
+}
+
