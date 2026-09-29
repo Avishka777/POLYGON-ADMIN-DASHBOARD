@@ -19,6 +19,7 @@ The application features a clean, RESTful Next.js App Router URL hierarchy:
 | `http://localhost:3000/developer/applications` | Applications Catalog Hub (Modular tile view — not all on one screen) |
 | `http://localhost:3000/developer/applications/polygon` | Dedicated Polygon Operations Page (`/api/app-version` + 5 health probes) |
 | `http://localhost:3000/developer/applications/[appId]` | Dedicated Single-App Diagnostic Page for each ecosystem mobile app |
+| `http://localhost:3000/developer/officer-status` | Officer Status & Password Manager (`/developer/user-status` alias) |
 | `http://localhost:3000/qa` | Napuru QA Operations Dashboard |
 | `http://localhost:3000/qa/db-exporter` | QA Database Exporter Workspace |
 | `http://localhost:3000/qa/wifi-scale` | QA Wi-Fi Scale Testing Console |
@@ -102,6 +103,21 @@ Clicking on **Polygon Mobile** opens an interactive explorer showing all 6 regis
 | **Govi Trans** | DEV | `https://transporter-mobile-api.vercel.app/transporter/health` |
 | | UAT | `https://transporter-mobile-api-uat.vercel.app/transporter/health` |
 | | PROD | `https://transporter-mobile-api-prod.vercel.app/transporter/health` |
+
+---
+
+### 5. Officer Status & Password Manager (Admin Panel Sync)
+A dedicated developer workspace at `/developer/officer-status` mirroring the Admin Panel backend controller logic:
+- **Environment Switcher**: Connect to live MySQL databases across **DEV** (`centerbeam.proxy.rlwy.net:54310`) and **UAT** (`roundhouse.proxy.rlwy.net:18145`) with real-time ping and table counts.
+- **Officer Directory**: Search officers by Emp ID, Name, Email, or Phone; filter by Status (`Approved`, `Not Approved`, `Rejected`) and Job Role with paginated live tables.
+- **Admin Status & Password Updates**:
+  - Update officer status in database (`collectionofficer` table).
+  - Auto-generate random 8-character passwords and securely hash with `bcryptjs` (salt rounds = 10).
+  - Display plain password with 1-click **Copy Password** button for quick mobile app login testing.
+- **Mobile API Synchronization**:
+  - Automatically notifies **Transporter Mobile API** (`/api/auth/notify-status-changed`) for Driver roles (`Light Weight Driver`, `Heavy Weight Driver`).
+  - Automatically notifies **Collector Mobile API** (`/api/auth/notify-status-changed`) for Collector/Distribution roles (`Collection Officer`, `Collection Centre Manager`, `Distribution Officer`, `Distribution Centre Manager`).
+  - Supports configurable endpoint base URLs for DEV, UAT, and local testing.
 
 ---
 

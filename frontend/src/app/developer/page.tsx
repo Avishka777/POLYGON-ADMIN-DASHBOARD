@@ -18,6 +18,8 @@ import {
   ShieldCheck,
   Sun,
   Layers,
+  UserCheck,
+  KeyRound,
 } from 'lucide-react';
 import { KingDeveloperIcon } from '@/components/common/icons/KingDeveloperIcon';
 import { useTheme } from '@/context/ThemeContext';
@@ -114,8 +116,8 @@ export default function DeveloperDashboardPage() {
           </div>
         </section>
 
-        {/* 3-CARD GLASSMORPHIC GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* 4-CARD GLASSMORPHIC GRID */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-6">
           {/* CARD 1: DB EXPORTER */}
           <Link
             href="/developer/db-exporter"
@@ -259,6 +261,51 @@ export default function DeveloperDashboardPage() {
               <div className="flex items-center gap-1.5">
                 <Activity className="w-4 h-4" />
                 <span>Browse All 6 Applications</span>
+              </div>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </div>
+          </Link>
+
+          {/* CARD 4: OFFICER STATUS & PASSWORD MANAGER */}
+          <Link
+            href="/developer/officer-status"
+            className="group glass-card p-7 rounded-3xl transition-all duration-300 flex flex-col justify-between space-y-6 hover:-translate-y-1.5 hover:shadow-emerald-500/20"
+          >
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="w-13 h-13 rounded-2xl bg-gradient-to-br from-emerald-500 via-teal-600 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-transform">
+                  <UserCheck className="w-6 h-6" />
+                </div>
+                <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                  Admin Panel Sync
+                </span>
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="text-lg font-extrabold group-hover:text-emerald-500 transition-colors">
+                  Officer Status Manager
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                  Connect to DEV/UAT databases. Change officer status, auto-generate bcrypt passwords, and trigger mobile app synchronization.
+                </p>
+              </div>
+
+              <div className="p-3 rounded-xl border border-white/20 dark:border-white/5 bg-white/40 dark:bg-black/30 space-y-1 text-xs">
+                <div className="flex items-center justify-between font-medium">
+                  <span className="text-slate-500 dark:text-slate-400">Environments:</span>
+                  <span className="font-semibold text-emerald-500">DEV & UAT MySQL</span>
+                </div>
+                <div className="flex items-center justify-between font-medium">
+                  <span className="text-slate-500 dark:text-slate-400">API Sync:</span>
+                  <span className="font-mono font-bold">Collector & Transporter</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-slate-200/50 dark:border-slate-800/50 flex items-center justify-between text-xs font-bold text-emerald-500">
+              <div className="flex items-center gap-1.5">
+                <KeyRound className="w-4 h-4" />
+                <span>Open Status Manager</span>
               </div>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </div>
