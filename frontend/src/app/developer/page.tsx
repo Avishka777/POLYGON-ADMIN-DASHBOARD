@@ -20,6 +20,9 @@ import {
   Layers,
   UserCheck,
   KeyRound,
+  Bell,
+  Zap,
+  Box,
 } from 'lucide-react';
 import { KingDeveloperIcon } from '@/components/common/icons/KingDeveloperIcon';
 import { useTheme } from '@/context/ThemeContext';
@@ -116,8 +119,8 @@ export default function DeveloperDashboardPage() {
           </div>
         </section>
 
-        {/* 4-CARD GLASSMORPHIC GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-6">
+        {/* 5-CARD GLASSMORPHIC GRID */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* CARD 1: DB EXPORTER */}
           <Link
             href="/developer/db-exporter"
@@ -306,6 +309,96 @@ export default function DeveloperDashboardPage() {
               <div className="flex items-center gap-1.5">
                 <KeyRound className="w-4 h-4" />
                 <span>Open Status Manager</span>
+              </div>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </div>
+          </Link>
+
+          {/* CARD 5: SALES DASH NOTIFICATION HUB */}
+          <Link
+            href="/developer/sales-dash-notifications"
+            className="group glass-card p-7 rounded-3xl transition-all duration-300 flex flex-col justify-between space-y-6 hover:-translate-y-1.5 hover:shadow-amber-500/20"
+          >
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="w-13 h-13 rounded-2xl bg-gradient-to-br from-amber-500 via-orange-600 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-amber-500/20 group-hover:scale-105 transition-transform">
+                  <Bell className="w-6 h-6" />
+                </div>
+                <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                  Real-Time Webhook
+                </span>
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="text-lg font-extrabold group-hover:text-amber-500 transition-colors">
+                  Sales Dash Notification Hub
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                  Trigger instant zero-polling notifications to Sales Agents across DEV, UAT, and Local environments with live WebSocket & push delivery.
+                </p>
+              </div>
+
+              <div className="p-3 rounded-xl border border-white/20 dark:border-white/5 bg-white/40 dark:bg-black/30 space-y-1 text-xs">
+                <div className="flex items-center justify-between font-medium">
+                  <span className="text-slate-500 dark:text-slate-400">Environments:</span>
+                  <span className="font-semibold text-amber-500">DEV, UAT & Local</span>
+                </div>
+                <div className="flex items-center justify-between font-medium">
+                  <span className="text-slate-500 dark:text-slate-400">Trigger Target:</span>
+                  <span className="font-mono font-bold">/api/notifications/trigger</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-slate-200/50 dark:border-slate-800/50 flex items-center justify-between text-xs font-bold text-amber-500">
+              <div className="flex items-center gap-1.5">
+                <Zap className="w-4 h-4" />
+                <span>Open Notification Hub</span>
+              </div>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </div>
+          </Link>
+
+          {/* CARD 6: PACKAGE UPDATE HUB */}
+          <Link
+            href="/developer/package-updates"
+            className="group glass-card p-7 rounded-3xl transition-all duration-300 flex flex-col justify-between space-y-6 hover:-translate-y-1.5 hover:shadow-purple-500/20"
+          >
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="w-13 h-13 rounded-2xl bg-gradient-to-br from-purple-600 via-indigo-600 to-amber-500 flex items-center justify-center text-white shadow-lg shadow-purple-500/20 group-hover:scale-105 transition-transform">
+                  <Box className="w-6 h-6" />
+                </div>
+                <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
+                  Cache & Socket Sync
+                </span>
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="text-lg font-extrabold group-hover:text-purple-500 transition-colors">
+                  Package Real-Time Sync Hub
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                  Broadcast package creates, edits, and status changes simultaneously to Sales Dash and Polygon (GoviMart) Mobile APIs.
+                </p>
+              </div>
+
+              <div className="p-3 rounded-xl border border-white/20 dark:border-white/5 bg-white/40 dark:bg-black/30 space-y-1 text-xs">
+                <div className="flex items-center justify-between font-medium">
+                  <span className="text-slate-500 dark:text-slate-400">Target Ecosystem:</span>
+                  <span className="font-semibold text-purple-500">SalesDash & GoviMart</span>
+                </div>
+                <div className="flex items-center justify-between font-medium">
+                  <span className="text-slate-500 dark:text-slate-400">Sync Channels:</span>
+                  <span className="font-mono font-bold">NodeCache + WebSocket</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-slate-200/50 dark:border-slate-800/50 flex items-center justify-between text-xs font-bold text-purple-500">
+              <div className="flex items-center gap-1.5">
+                <Radio className="w-4 h-4" />
+                <span>Open Package Sync Hub</span>
               </div>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </div>

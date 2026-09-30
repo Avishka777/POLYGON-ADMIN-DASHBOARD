@@ -296,10 +296,11 @@ export async function executeUpdateStatusAndSendPassword(options: UpdateStatusOp
         clearTimeout(timeoutId);
 
         let data: any = null;
+        const rawText = await res.text();
         try {
-          data = await res.json();
+          data = JSON.parse(rawText);
         } catch {
-          data = await res.text();
+          data = rawText;
         }
 
         console.log(`📥 [Transporter Sync] Response status: ${res.status}`);
@@ -348,10 +349,11 @@ export async function executeUpdateStatusAndSendPassword(options: UpdateStatusOp
         clearTimeout(timeoutId);
 
         let data: any = null;
+        const rawText = await res.text();
         try {
-          data = await res.json();
+          data = JSON.parse(rawText);
         } catch {
-          data = await res.text();
+          data = rawText;
         }
 
         console.log(`📥 [Collector Sync] Response status: ${res.status}`);
