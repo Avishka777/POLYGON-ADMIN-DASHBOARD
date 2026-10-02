@@ -23,6 +23,7 @@ import {
   Bell,
   Zap,
   Box,
+  ShoppingBag,
 } from 'lucide-react';
 import { KingDeveloperIcon } from '@/components/common/icons/KingDeveloperIcon';
 import { useTheme } from '@/context/ThemeContext';
@@ -399,6 +400,51 @@ export default function DeveloperDashboardPage() {
               <div className="flex items-center gap-1.5">
                 <Radio className="w-4 h-4" />
                 <span>Open Package Sync Hub</span>
+              </div>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </div>
+          </Link>
+
+          {/* CARD 7: POLYGON (GOVIMART) NOTIFICATION HUB */}
+          <Link
+            href="/developer/polygon-notifications"
+            className="group glass-card p-7 rounded-3xl transition-all duration-300 flex flex-col justify-between space-y-6 hover:-translate-y-1.5 hover:shadow-cyan-500/20"
+          >
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="w-13 h-13 rounded-2xl bg-gradient-to-br from-cyan-600 via-teal-600 to-emerald-500 flex items-center justify-center text-white shadow-lg shadow-cyan-500/20 group-hover:scale-105 transition-transform">
+                  <ShoppingBag className="w-6 h-6" />
+                </div>
+                <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20">
+                  Thin Event Trigger
+                </span>
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="text-lg font-extrabold group-hover:text-cyan-500 transition-colors">
+                  Polygon (GoviMart) Notification Hub
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                  Trigger real-time notifications to GoviMart marketplace customers using lightweight thin-event socket signals & verified DB updates.
+                </p>
+              </div>
+
+              <div className="p-3 rounded-xl border border-white/20 dark:border-white/5 bg-white/40 dark:bg-black/30 space-y-1 text-xs">
+                <div className="flex items-center justify-between font-medium">
+                  <span className="text-slate-500 dark:text-slate-400">Target Ecosystem:</span>
+                  <span className="font-semibold text-cyan-500">Polygon GoviMart Customers</span>
+                </div>
+                <div className="flex items-center justify-between font-medium">
+                  <span className="text-slate-500 dark:text-slate-400">Socket Protocol:</span>
+                  <span className="font-mono font-bold">user_&#123;userId&#125; • new_notification</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-slate-200/50 dark:border-slate-800/50 flex items-center justify-between text-xs font-bold text-cyan-500">
+              <div className="flex items-center gap-1.5">
+                <Zap className="w-4 h-4" />
+                <span>Open GoviMart Hub</span>
               </div>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </div>
