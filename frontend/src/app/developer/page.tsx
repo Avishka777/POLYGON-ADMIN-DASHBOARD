@@ -24,6 +24,7 @@ import {
   Zap,
   Box,
   ShoppingBag,
+  Printer,
 } from 'lucide-react';
 import { KingDeveloperIcon } from '@/components/common/icons/KingDeveloperIcon';
 import { useTheme } from '@/context/ThemeContext';
@@ -445,6 +446,51 @@ export default function DeveloperDashboardPage() {
               <div className="flex items-center gap-1.5">
                 <Zap className="w-4 h-4" />
                 <span>Open GoviMart Hub</span>
+              </div>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </div>
+          </Link>
+
+          {/* CARD 8: VIRTUAL THERMAL PRINTER HUB */}
+          <Link
+            href="/developer/thermal-printer"
+            className="group glass-card p-7 rounded-3xl transition-all duration-300 flex flex-col justify-between space-y-6 hover:-translate-y-1.5 hover:shadow-blue-500/20"
+          >
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="w-13 h-13 rounded-2xl bg-gradient-to-br from-blue-600 via-indigo-600 to-amber-500 flex items-center justify-center text-white shadow-lg shadow-blue-500/20 group-hover:scale-105 transition-transform">
+                  <Printer className="w-6 h-6" />
+                </div>
+                <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+                  Label Hardware Hub
+                </span>
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="text-lg font-extrabold group-hover:text-blue-500 transition-colors">
+                  Virtual Thermal Printer Hub
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                  Real-time TSPL Bluetooth & LAN printer hub. Visualizes live 50x30mm thermal label packing stickers from Codi Net with QR codes & feed animations.
+                </p>
+              </div>
+
+              <div className="p-3 rounded-xl border border-white/20 dark:border-white/5 bg-white/40 dark:bg-black/30 space-y-1 text-xs">
+                <div className="flex items-center justify-between font-medium">
+                  <span className="text-slate-500 dark:text-slate-400">Protocols:</span>
+                  <span className="text-blue-500 font-bold font-mono">TCP:33582 • HTTP:3002</span>
+                </div>
+                <div className="flex items-center justify-between font-medium">
+                  <span className="text-slate-500 dark:text-slate-400">Label Format:</span>
+                  <span className="font-semibold">50mm × 30mm TSPL Theme 2</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-slate-200/50 dark:border-slate-800/50 flex items-center justify-between text-xs font-bold text-blue-500">
+              <div className="flex items-center gap-1.5">
+                <Printer className="w-4 h-4" />
+                <span>Open Virtual Printer Hub</span>
               </div>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </div>
